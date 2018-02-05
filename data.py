@@ -63,7 +63,16 @@ class Instance():
                 target[len(tokens)] = True
             if self.sentence[i] == ' ':
                 tokens.append(self.sentence[start:i].lower())
-                start = i+1
+                start = i + 1
+            elif self.sentence[i] == '\'' or self.sentence[i] == '.':
+                tokens.append(self.sentence[start:i].lower())
+                start = i
+            elif self.sentence[i] == '\"':
+                # we need to fix this part because it's generate a empty token but it catch a dot
+                if i - start >= 0:
+                    tokens.append(self.sentence[start:i].lower())
+                tokens.append(self.sentence[i:i + 1].lower())
+                start = i + 1
         return tokens, list(target.keys())
 
 
