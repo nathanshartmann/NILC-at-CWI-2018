@@ -2,7 +2,7 @@
 # @Author: nathanhartmann
 # @Date:   2018-01-31 15:15:33
 # @Last Modified by:   nathansh
-# @Last Modified time: 2018-02-07 15:22:35
+# @Last Modified time: 2018-02-07 17:37:24
 import numpy as np
 
 
@@ -57,6 +57,7 @@ class Instance():
     def tokenize(self):
         tokens = []
         target = {}
+        endings = ['?', '”', '"', '!', ')', "'", '.']
         start = 0
         for i in range(len(self.sentence)):
             if i in range(self.offset[0], self.offset[1]):
@@ -65,14 +66,16 @@ class Instance():
                 if self.sentence[start:i]:
                     tokens.append(self.sentence[start:i].lower())
                 start = i + 1
-            elif self.sentence[i] in ['.', ',']:
+            elif self.sentence[i] in (endings + [',', ':', ';', '(', ')', '', '…', '[', ']']):
                 tokens.append(self.sentence[start:i].lower())
                 tokens.append(self.sentence[i:i+1].lower())
                 start = i + 1
-            elif self.sentence[i] == '\"':
+            elif self.sentence[i] in ['\"', '“']:
                 if i - start >= 0:
                     tokens.append(self.sentence[i:i + 1].lower())
                 start = i + 1
+            if i == len(self.sentence)-1 and self.sentence[i] not in endings:
+                tokens.append(self.sentence[start:].lower())
         return tokens, list(target.keys())
 
 
@@ -98,21 +101,24 @@ class Data():
         unique_insts = len(set([i.hit_id for i in self.instances]))
         unique_targets = len(set([i.target_chars for i in self.instances]))
         sents_len = [len(i.sentence) for i in self.instances]
+        tokens_len = [len(i.tokens) for i in self.instances]
         print('Unique instances: %d' % unique_insts)
         print('Unique targets: %d' % unique_targets)
         print('Sentences char length: %.2f (±%.2f)' % (np.mean(sents_len),
                                                        np.std(sents_len)))
+        print('Sentences token length: %.2f (±%.2f)' % (np.mean(tokens_len),
+                                                        np.std(tokens_len)))
 
-training_data = ['datasets/english/News_Train.tsv',
-                 'datasets/english/WikiNews_Train.tsv',
-                 'datasets/english/Wikipedia_Train.tsv',
-                 ]
 
 if __name__ == "__main__":
+    training_data = ['datasets/english/News_Train.tsv',
+                     'datasets/english/WikiNews_Train.tsv',
+                     'datasets/english/Wikipedia_Train.tsv',
+                     ]
     data = Data()
     data.load_data(training_data)
     print('=====STATISTICS=====')
-    # data.statistics()
+    data.statistics()
     print('=====EXAMPLE=====')
     # print(data.instances[0])
     # print(data.instances[10])
@@ -122,4 +128,4 @@ if __name__ == "__main__":
     # print(data.instances[70])
     # print(data.instances[80])
     # print(data.instances[90])
-    print(data.instances[1615])
+    # print(data.instances[8283])
