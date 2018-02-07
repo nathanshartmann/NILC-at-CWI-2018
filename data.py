@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Author: nathanhartmann
 # @Date:   2018-01-31 15:15:33
-# @Last Modified by:   nathanhartmann
-# @Last Modified time: 2018-02-01 11:27:14
+# @Last Modified by:   nathansh
+# @Last Modified time: 2018-02-07 15:22:35
 import numpy as np
 
 
@@ -62,16 +62,16 @@ class Instance():
             if i in range(self.offset[0], self.offset[1]):
                 target[len(tokens)] = True
             if self.sentence[i] == ' ':
-                tokens.append(self.sentence[start:i].lower())
-                start = i + 1
-            elif self.sentence[i] == '\'' or self.sentence[i] == '.':
-                tokens.append(self.sentence[start:i].lower())
-                start = i
-            elif self.sentence[i] == '\"':
-                # we need to fix this part because it's generate a empty token but it catch a dot
-                if i - start >= 0:
+                if self.sentence[start:i]:
                     tokens.append(self.sentence[start:i].lower())
-                tokens.append(self.sentence[i:i + 1].lower())
+                start = i + 1
+            elif self.sentence[i] in ['.', ',']:
+                tokens.append(self.sentence[start:i].lower())
+                tokens.append(self.sentence[i:i+1].lower())
+                start = i + 1
+            elif self.sentence[i] == '\"':
+                if i - start >= 0:
+                    tokens.append(self.sentence[i:i + 1].lower())
                 start = i + 1
         return tokens, list(target.keys())
 
@@ -112,6 +112,14 @@ if __name__ == "__main__":
     data = Data()
     data.load_data(training_data)
     print('=====STATISTICS=====')
-    data.statistics()
+    # data.statistics()
     print('=====EXAMPLE=====')
-    print(data.instances[60])
+    # print(data.instances[0])
+    # print(data.instances[10])
+    # print(data.instances[20])
+    # print(data.instances[30])
+    # print(data.instances[60])
+    # print(data.instances[70])
+    # print(data.instances[80])
+    # print(data.instances[90])
+    print(data.instances[1615])
