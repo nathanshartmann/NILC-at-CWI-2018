@@ -1,0 +1,6 @@
+1 Billion Word Language Model Benchmark 
+    http://www.statmt.org/lm-benchmark/1-billion-word-language-modeling-benchmark-r13output.tar.gz
+BookCorpus
+    http://www.cs.toronto.edu/~mbweb/data/books_in_sentences.tar
+    User name: mbweb
+    Password: Tiwp49mS3Ts
