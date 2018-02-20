@@ -57,7 +57,7 @@ class Instance():
     def tokenize(self):
         tokens = []
         target = {}
-        endings = ['?', '”', '"', '!', ')', "'", '.']
+        endings = ['?', '”', '"', '!', ')', '.']
         start = 0
         for i in range(len(self.sentence)):
             if i in range(self.offset[0], self.offset[1]):
@@ -66,8 +66,12 @@ class Instance():
                 if self.sentence[start:i]:
                     tokens.append(self.sentence[start:i].lower())
                 start = i + 1
-            elif self.sentence[i] in (endings + [',', ':', ';', '(', ')', '', '…', '[', ']']):
+            elif self.sentence[i] == '\'':
                 tokens.append(self.sentence[start:i].lower())
+                start = i
+            elif self.sentence[i] in (endings + [',', ':', ';', '(', ')', '', '…', '[', ']']):
+                if i - start > 0:
+                    tokens.append(self.sentence[start:i].lower())
                 tokens.append(self.sentence[i:i+1].lower())
                 start = i + 1
             elif self.sentence[i] in ['\"', '“']:
