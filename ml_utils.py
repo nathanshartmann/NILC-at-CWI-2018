@@ -2,10 +2,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_curve, auc, confusion_matrix
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
 from matplotlib import pyplot as plt
-
 import numpy as np
+
 
 def grid_search_classifiers(model, params):
     kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=7)

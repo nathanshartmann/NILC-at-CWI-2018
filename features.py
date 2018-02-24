@@ -1,8 +1,11 @@
+from gensim.models import KeyedVectors
 import pandas as pd
+import numpy as np
 import kenlm
 
+
 class FeatureExtractor():
-    def __init__(self, psycho_path, lm_books_path, lm_news_path):
+    def __init__(self, psycho_path=None, lm_books_path=None, lm_news_path=None, embedding_model_path=None):
         if psycho_path:
             self.df = pd.read_csv(psycho_path, sep='\t')
             self.df_mean = self.df.mean(axis=0)
@@ -10,6 +13,8 @@ class FeatureExtractor():
             self.lm_books = kenlm.LanguageModel(lm_books_path)
         if lm_news_path:
             self.lm_news = kenlm.LanguageModel(lm_news_path)
+        if embedding_model_path:
+            self.embeddings = KeyedVectors.load_word2vec_format(embedding_model_path, binary=True)
 
     def psycholinguistics(self, words):
         """Extract psycholinguistic features."""
@@ -35,7 +40,21 @@ class FeatureExtractor():
         model['LM-News_log10'] = self.lm_news.score(' '.join(tokens), bos=False, eos=False)
         return model
 
-    def predict(self, instances):
+    def predict_average_embeddings(self, instances):
+        """Extract average value of target words embeddings."""
+        
+        data_embeddings = []
+        for index, instance in enumerate(instances):
+            words = []
+            for i in instance.target:
+                if instance.tokens[i] in self.embeddings:
+                    words.append(self.embeddings[instance.tokens[i]])
+            if len(words) == 0:
+                words.append(self.embeddings['unk'])
+            data_embeddings.append(np.average(words, axis=0))
+        return np.asarray(data_embeddings, )
+
+    def predict_linguistics(self, instances):
         """Extract features for every instance."""
 
         x = pd.DataFrame()

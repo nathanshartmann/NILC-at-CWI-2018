@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-# @Author: nathanhartmann
-# @Date:   2018-01-31 15:15:33
-# @Last Modified by:   nathansh
-# @Last Modified time: 2018-02-07 17:37:24
 import numpy as np
 
 
