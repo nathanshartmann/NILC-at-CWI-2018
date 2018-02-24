@@ -34,6 +34,7 @@ class Instance():
         self.annotators = [int(sentence[5]), int(sentence[6])]
         self.difficult = [int(sentence[7]), int(sentence[8])]
         self.tokens, self.target = self.tokenize()
+        self.target.sort()
         if not test:
             self.label = [int(sentence[9]), float(sentence[10])]
         else:
