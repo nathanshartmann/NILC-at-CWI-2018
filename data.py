@@ -85,6 +85,7 @@ class Data():
     def __init__(self, datasets, test=False):
         self.instances = []
         self.y = []
+        self.y_prob = []
         self.load_data(datasets, test=test)
 
     def load_data(self, datasets, test=False):
@@ -98,6 +99,7 @@ class Data():
             for line in lines:
                 self.instances.append(Instance(line))
         self.y = np.array([instance.label[0] for instance in self.instances])
+        self.y_prob = np.array([instance.label[1] for instance in self.instances])
 
     def statistics(self):
         print('Instances: %d' % len(self.instances))
