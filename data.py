@@ -27,13 +27,14 @@ class Instance():
         self.offset = [int(sentence[2]), int(sentence[3])]
         self.target_chars = sentence[4]
         self.annotators = [int(sentence[5]), int(sentence[6])]
-        self.difficult = [int(sentence[7]), int(sentence[8])]
         self.tokens, self.target = self.tokenize()
         self.target.sort()
         if not test:
             self.label = [int(sentence[9]), float(sentence[10])]
+            self.difficult = [int(sentence[7]), int(sentence[8])]
         else:
             self.label = None
+            self.difficult = None
 
     def __str__(self):
         string = "HIT ID: %s\nSENTENCE: %s\nTOKENS: %s\nOFFSET: %s\nTARGET_CHARS: %s\nTARGET_TOKENS: %s\nANNOTATORS: %s\nDIFFICULT: %s\nLABEL: %s"
@@ -82,24 +83,29 @@ class Instance():
 class Data():
     """Docstring."""
 
-    def __init__(self, datasets, test=False):
+    def __init__(self, datasets, is_test=False):
         self.instances = []
         self.y = []
         self.y_prob = []
-        self.load_data(datasets, test=test)
+        self.test = is_test
+        self.load_data(datasets)
 
-    def load_data(self, datasets, test=False):
+    def load_data(self, datasets):
         for dataset in datasets:
             with open(dataset) as fp:
                 lines = [line.split('\t') for line in fp.read().splitlines()]
             # assert data consistance
             for line in lines:
-                assert len(line) == 11, "Campo faltante em: %s" % line
+                if not self.test:
+                    assert len(line) == 11, "Campo faltante em: %s" % line
+                else:
+                    assert len(line) == 7, "Campo faltante em: %s" % line
             # create instances
             for line in lines:
-                self.instances.append(Instance(line))
-        self.y = np.array([instance.label[0] for instance in self.instances])
-        self.y_prob = np.array([instance.label[1] for instance in self.instances])
+                self.instances.append(Instance(line, test=self.test))
+        if not self.test:
+            self.y = np.array([instance.label[0] for instance in self.instances])
+            self.y_prob = np.array([instance.label[1] for instance in self.instances])
 
     def statistics(self):
         print('Instances: %d' % len(self.instances))
