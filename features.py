@@ -1,8 +1,9 @@
 from gensim.models import KeyedVectors
+from nltk.corpus import wordnet as wn
 import pandas as pd
 import numpy as np
+import pyphen
 import kenlm
-
 
 class FeatureExtractor():
     def __init__(self, psycho_path=None, lm_books_path=None, lm_news_path=None, embedding_model_path=None):
@@ -15,6 +16,31 @@ class FeatureExtractor():
             self.lm_news = kenlm.LanguageModel(lm_news_path)
         if embedding_model_path:
             self.embeddings = KeyedVectors.load_word2vec_format(embedding_model_path, binary=True)
+        self.syllables = pyphen.Pyphen(lang='en')
+
+    def lexical(self, words):
+        """Extract lexical features."""
+        lexicals = []
+        for word in words:
+            dic = {'chars':0, 'syllables':0}
+            dic['chars'] = len(word)
+            dic['syllables'] = len(self.syllables.positions(word)) + 1
+            lexicals.append(pd.Series(dic, index=dic.keys()))
+        return pd.DataFrame(lexicals).mean()
+
+    def wordnet(self, words):
+        """Extract wordnet features."""
+
+        wordnets = []
+        for word in words:
+            dic = {'synsets':0, 'hypernyms':0, 'hyponyms':0}
+            syns = wn.synsets(word)
+            dic['synsets'] = len(syns)
+            for syn in syns:
+                dic['hypernyms'] += len(syn.hypernyms())
+                dic['hyponyms'] += len(syn.hyponyms())
+            wordnets.append(pd.Series(dic, index=dic.keys()))
+        return pd.DataFrame(wordnets).mean()
 
     def psycholinguistics(self, words):
         """Extract psycholinguistic features."""
@@ -64,5 +90,7 @@ class FeatureExtractor():
 
             features.update(self.psycholinguistics(tokens))
             features.update(self.language_model(tokens))
+            features.update(self.wordnet(tokens))
+            features.update(self.lexical(tokens))
             x = x.append(pd.DataFrame([features]))
         return x.reset_index().drop('index', axis=1)
