@@ -50,7 +50,10 @@ def best_threshold(pred, y, metric='accuracy'):
         aux = pred.copy()
         aux[aux >= i] = 1
         aux[aux < i] = 0
-        new = metric(aux, y)
+        if metric == f1_score:
+            new = metric(aux, y, average='macro')
+        else:
+            new = metric(aux, y)
         if new > best:
             best = new
             th = i
