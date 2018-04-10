@@ -6,7 +6,11 @@ import pyphen
 import kenlm
 
 class FeatureExtractor():
+    """Docstring."""
+
     def __init__(self, psycho_path=None, lm_books_path=None, lm_news_path=None, embedding_model_path=None):
+        """Docstring"""
+
         if psycho_path:
             self.df = pd.read_csv(psycho_path, sep='\t')
             self.df_mean = self.df.mean(axis=0)
@@ -20,13 +24,17 @@ class FeatureExtractor():
 
     def lexical(self, words):
         """Extract lexical features."""
+
         lexicals = []
         for word in words:
             dic = {'chars':0, 'syllables':0}
             dic['chars'] = len(word)
             dic['syllables'] = len(self.syllables.positions(word)) + 1
             lexicals.append(pd.Series(dic, index=dic.keys()))
-        return pd.DataFrame(lexicals).mean()
+        df = pd.DataFrame(lexicals)
+        df = df.rolling(df.shape[0]).agg(['mean', 'std', 'min', 'max'])[-1:]
+        df.columns = df.columns.map('_'.join)
+        return df
 
     def wordnet(self, words):
         """Extract wordnet features."""
@@ -40,7 +48,10 @@ class FeatureExtractor():
                 dic['hypernyms'] += len(syn.hypernyms())
                 dic['hyponyms'] += len(syn.hyponyms())
             wordnets.append(pd.Series(dic, index=dic.keys()))
-        return pd.DataFrame(wordnets).mean()
+        df = pd.DataFrame(wordnets)
+        df = df.rolling(df.shape[0]).agg(['mean', 'std', 'min', 'max'])[-1:]
+        df.columns = df.columns.map('_'.join)
+        return df
 
     def psycholinguistics(self, words):
         """Extract psycholinguistic features."""
@@ -56,7 +67,10 @@ class FeatureExtractor():
                 for key in psycho.keys():
                     psycho[key] += self.df_mean[key]
             psychos.append(pd.Series(psycho, index=psycho.keys()))
-        return pd.DataFrame(psychos).mean().to_dict()
+        df = pd.DataFrame(psychos)
+        df = df.rolling(df.shape[0]).agg(['mean', 'std', 'min', 'max'])[-1:]
+        df.columns = df.columns.map('_'.join)
+        return df
 
     def language_model(self, tokens):
         """Extract language model features."""
@@ -68,7 +82,7 @@ class FeatureExtractor():
 
     def predict_average_embeddings(self, instances):
         """Extract average value of target words embeddings."""
-        
+
         data_embeddings = []
         for index, instance in enumerate(instances):
             words = []
@@ -83,7 +97,7 @@ class FeatureExtractor():
     def predict_linguistics(self, instances):
         """Extract features for every instance."""
 
-        x = pd.DataFrame()
+        df = pd.DataFrame()
         for instance in instances:
             features = dict()
             tokens = [instance.tokens[i] for i in instance.target]
@@ -92,5 +106,7 @@ class FeatureExtractor():
             features.update(self.language_model(tokens))
             features.update(self.wordnet(tokens))
             features.update(self.lexical(tokens))
-            x = x.append(pd.DataFrame([features]))
-        return x.reset_index().drop('index', axis=1)
+            df = df.append(pd.DataFrame(features))
+            df = df.reset_index().drop('index', axis=1)
+            df.fillna(0, inplace=True)
+        return df

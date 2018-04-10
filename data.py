@@ -97,9 +97,9 @@ class Data():
             # assert data consistance
             for line in lines:
                 if not self.test:
-                    assert len(line) == 11, "Campo faltante em: %s" % line
+                    assert len(line) == 11, "Missing field: %s" % line
                 else:
-                    assert len(line) == 7, "Campo faltante em: %s" % line
+                    assert len(line) == 7, "Missing field: %s" % line
             # create instances
             for line in lines:
                 self.instances.append(Instance(line, test=self.test))
