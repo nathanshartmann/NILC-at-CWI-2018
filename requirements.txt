@@ -36,13 +36,14 @@ mistune==0.8.3
 nbconvert==5.3.1
 nbformat==4.4.0
 nltk==3.2.5
-notebook==5.4.0
+notebook==5.7.0
 numpy==1.14.0
 pandas==0.22.0
 pandocfilters==1.4.2
 parso==0.1.1
 pexpect==4.3.1
 pickleshare==0.7.4
+prometheus-client==0.4.0
 prompt-toolkit==1.0.15
 protobuf==3.5.1
 ptyprocess==0.5.2
@@ -52,7 +53,7 @@ Pyphen==0.9.4
 python-dateutil==2.6.1
 pytz==2017.3
 PyYAML==3.12
-pyzmq==16.0.4
+pyzmq==17.1.2
 qtconsole==4.3.1
 requests==2.18.4
 s3transfer==0.1.13
